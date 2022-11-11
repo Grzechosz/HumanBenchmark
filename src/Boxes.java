@@ -4,6 +4,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Boxes {
     public void drawBox(String label, Terminal terminal, Screen screen, int shift) throws IOException {
@@ -79,5 +80,19 @@ public class Boxes {
         leftTop = new TerminalPosition(col,row);
         textGraphics.drawRectangle(leftTop,labelBoxSize,TextCharacter.DEFAULT_CHARACTER.withBackgroundColor(TextColor.ANSI.WHITE_BRIGHT));
         textGraphics.putString(leftTop.withRelative((width - label.length())/2, 1), label);
+    }
+
+    public void drawTitle(ArrayList<String> title,Terminal terminal, Screen screen) {
+        TextGraphics textGraphics = screen.newTextGraphics();
+        int spacing = 2;
+        for (String line:title) {
+            try {
+                textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - line.length() / 2, spacing, line, SGR.BOLD);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            spacing++;
+
+        }
     }
 }

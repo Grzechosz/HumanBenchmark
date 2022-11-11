@@ -10,9 +10,31 @@ import com.googlecode.lanterna.terminal.swing.*;
 //import com.googlecode.lanterna.gui2.AbstractTextGUI.processInput;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 
 public class Menu {
+
+    public static ArrayList<String> readTitle() {
+        ArrayList<String> title = new ArrayList<>();
+        File file = new File("title.txt");
+        try {
+            Scanner scanner = new Scanner(file);
+            int i = 0;
+            while (scanner.hasNextLine()) {
+                String nextLine = scanner.nextLine();
+                title.add(nextLine);
+                i++;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return title;
+    }
 
     public static void main(String[] args) {
         DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
@@ -27,6 +49,7 @@ public class Menu {
         };
         Measures measures = new Measures();
         Boxes boxes = new Boxes();
+        ArrayList<String> title = readTitle();
         int shift = -5;
         int col, row, width = 20, heigth = 3;
         try {
@@ -40,6 +63,7 @@ public class Menu {
             screen.startScreen();
             screen.setCursorPosition(null);
 
+            boxes.drawTitle(title, terminal, screen);
 
             for (int i = 0 ; i< 4; i++) {
                 col = (terminal.getTerminalSize().getColumns()-width)/2;
@@ -80,6 +104,7 @@ public class Menu {
                             break;
                     }
                 }
+                boxes.drawTitle(title, terminal, screen);
 
                 shift = -5;
                 for (int i = 0 ; i< 4; i++) {

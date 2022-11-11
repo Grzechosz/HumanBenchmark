@@ -260,24 +260,16 @@ public class Measures {
             }
             screen.refresh();
             spacing = 3;
+            typing.setStart_time(System.nanoTime());
             for (String line:typing.getText()) {
                 int x = (terminal.getTerminalSize().getColumns() / 2 - line.length() / 2);
                 int y = spacing;
-//                TerminalPosition terminalPosition = new TerminalPosition((terminal.getTerminalSize().getColumns() / 2 - line.length() / 2), spacing);
                 screen.setCursorPosition(new TerminalPosition(x,y));
                 screen.refresh();
-//                keyStroke1 = screen.readInput();
                 int index = 0;
                 boolean endWriting = false;
                 while (index < line.length()) {    //    && !endWriting
                     keyStroke1 = screen.readInput();
-//                    while (keyStroke1.getKeyType() != KeyType.Character)
-//                    {
-//                        if (keyStroke1.getKeyType() == KeyType.Escape) {
-//                            break;
-//                        }
-//                        keyStroke1 = screen.readInput();
-//                    }
                     if (keyStroke1.getKeyType() != KeyType.Escape && keyStroke1.getCharacter() == line.charAt(index)) {
                         textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
                     } else if (keyStroke1.getKeyType() == KeyType.Escape){
@@ -298,7 +290,16 @@ public class Measures {
 
             }
 
+            typing.setEnd_time(System.nanoTime());
+            int time = typing.getTypingTime();
+            int words = typing.getTextLength();
+            int result = words/time;
 
+            String resultMsg = "Twój wynik to: " + result + " WPM";
+            textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - resultMsg.length() / 2, terminal.getTerminalSize().getRows()/2 + 10, resultMsg, SGR.BOLD);
+            screen.refresh();
+
+            keyStroke1 = screen.readInput();
         } catch (IOException e) {
             e.printStackTrace();
         }
