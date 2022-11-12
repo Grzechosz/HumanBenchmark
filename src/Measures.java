@@ -23,9 +23,6 @@ class SortResults implements Comparator<Integer> {
 
 public class Measures {
 
-
-
-
     public void measureReactionTime(Terminal terminal, Screen screen, Statistics statistics) {
         screen.clear();
         try {
@@ -220,11 +217,6 @@ public class Measures {
                                 word = verbalMemory.getSeenWord();
                                 result = 1;
                             }
-                            livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + " Punkty | " + verbalMemory.getPoints();
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
-                            screen.refresh();
                         }
                         else {
                             verbalMemory.loseLive();
@@ -238,16 +230,29 @@ public class Measures {
                                 word = verbalMemory.getSeenWord();
                                 result = 1;
                             }
-                            livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + "   Punkty | " + verbalMemory.getPoints();
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
-                            screen.refresh();
                             if (verbalMemory.getLives() == 0){
                                 break;
                             }
-                           }
                         }
+                        int columnStart = (terminal.getTerminalSize().getColumns() - word.length())/2;
+                        int columnEnd = (terminal.getTerminalSize().getColumns() + word.length())/2;
+                        int rowv = terminal.getTerminalSize().getRows()/2-2;
+                        TerminalPosition progressBarStart = new TerminalPosition(columnStart,rowv);
+                        TerminalPosition progressBarEnd = new TerminalPosition(columnEnd, rowv);
+
+                        textGraphics.drawLine(progressBarStart,progressBarEnd,Symbols.BLOCK_SOLID);
+                        screen.refresh();
+                        Thread.sleep(200);
+                    }
+
+                        livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + " Punkty | " + verbalMemory.getPoints();
+
+                        textGraphics.putString((terminal.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
+                        textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
+                        textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
+                        screen.refresh();
+
+
                         shift = -7;
                         for (int i = 0 ; i< 2; i++) {
                             col = (terminal.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
@@ -271,7 +276,9 @@ public class Measures {
                     keyStroke = screen.readInput();
                 }
                 }
-        } catch (IOException e) {
+        } catch (IOException e ) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
         screen.clear();
