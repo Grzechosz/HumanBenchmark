@@ -249,7 +249,7 @@ public class Measures {
         screen.clear();
         try {
             int spacing = 3;
-            String startTestMsg = "Zacznij pisać aby rozpocząć test";
+            String startTestMsg = "Kliknij ENTER a następnie zacznij pisać aby rozpocząć test";
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
             textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - startTestMsg.length() / 2, 1, startTestMsg, SGR.BOLD);
@@ -260,49 +260,63 @@ public class Measures {
             }
             screen.refresh();
             spacing = 3;
-            typing.setStart_time(System.nanoTime());
-            for (String line:typing.getText()) {
-                int x = (terminal.getTerminalSize().getColumns() / 2 - line.length() / 2);
-                int y = spacing;
-                screen.setCursorPosition(new TerminalPosition(x,y));
-                screen.refresh();
-                int index = 0;
-                boolean endWriting = false;
-                while (index < line.length()) {    //    && !endWriting
-                    keyStroke1 = screen.readInput();
-                    if (keyStroke1.getKeyType() != KeyType.Escape && keyStroke1.getCharacter() == line.charAt(index)) {
-                        textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
-                    } else if (keyStroke1.getKeyType() == KeyType.Escape){
-                        endWriting = true;
-                        break;
-                    } else  {
-                        textGraphics.setBackgroundColor(TextColor.ANSI.RED);
-                    }
-                    textGraphics.putString(x,y, String.valueOf(line.charAt(index)));
-                    x++;
-                    index++;
+            keyStroke1 = screen.readInput();
+            if (keyStroke1.getKeyType() == KeyType.Enter) {
+                typing.setStart_time(System.nanoTime());
+                for (String line:typing.getText()) {
+                    int x = (terminal.getTerminalSize().getColumns() / 2 - line.length() / 2);
+                    int y = spacing;
+                    screen.setCursorPosition(new TerminalPosition(x,y));
                     screen.refresh();
-                }
-                spacing+=2;
-                if (endWriting) {
-                    break;
+                    int index = 0;
+                    boolean endWriting = false;
+                    while (index < line.length()) {    //    && !endWriting
+                        keyStroke1 = screen.readInput();
+                        if (keyStroke1.getKeyType() != KeyType.Escape && keyStroke1.getKeyType() == KeyType.Character && keyStroke1.getCharacter() == line.charAt(index)) {
+                            textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
+                            typing.incrementCorrect();
+                        } else if (keyStroke1.getKeyType() == KeyType.Escape){
+                            endWriting = true;
+                            break;
+                        } else  {
+                            textGraphics.setBackgroundColor(TextColor.ANSI.RED);
+                        }
+                        textGraphics.putString(x,y, String.valueOf(line.charAt(index)));
+                        x++;
+                        index++;
+                        screen.refresh();
+                    }
+                    spacing+=2;
+                    if (endWriting) {
+                        break;
+                    }
+
                 }
 
+                typing.setEnd_time(System.nanoTime());
+                float time = typing.getTypingTime();
+                int words = typing.getTextLength();
+                float accuracy = typing.getAccuracy();
+                double result =  Math.floor((words / (time/60)) * accuracy);
+
+                String resultMsg = "Twój wynik to: " + result + " WPM";
+                textGraphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - resultMsg.length() / 2, terminal.getTerminalSize().getRows()/2 + 10, resultMsg, SGR.BOLD);
+                screen.refresh();
+
+                keyStroke1 = screen.readInput();
+                while (keyStroke1.getKeyType() != KeyType.Escape) {
+                    keyStroke1 = screen.readInput();
+                }
             }
 
-            typing.setEnd_time(System.nanoTime());
-            int time = typing.getTypingTime();
-            int words = typing.getTextLength();
-            int result = words/time;
-
-            String resultMsg = "Twój wynik to: " + result + " WPM";
-            textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - resultMsg.length() / 2, terminal.getTerminalSize().getRows()/2 + 10, resultMsg, SGR.BOLD);
-            screen.refresh();
-
-            keyStroke1 = screen.readInput();
+//            Thread.sleep(2000);
         } catch (IOException e) {
             e.printStackTrace();
         }
+//        catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         screen.clear();
     }
 }

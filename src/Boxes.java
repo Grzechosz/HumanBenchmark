@@ -78,7 +78,7 @@ public class Boxes {
         TerminalSize labelBoxSize = new TerminalSize(width,height);
         TerminalPosition leftTop = null;
         leftTop = new TerminalPosition(col,row);
-        textGraphics.drawRectangle(leftTop,labelBoxSize,TextCharacter.DEFAULT_CHARACTER.withBackgroundColor(TextColor.ANSI.WHITE_BRIGHT));
+        textGraphics.drawRectangle(leftTop,labelBoxSize,TextCharacter.DEFAULT_CHARACTER.withBackgroundColor(TextColor.ANSI.MAGENTA_BRIGHT));
         textGraphics.putString(leftTop.withRelative((width - label.length())/2, 1), label);
     }
 
