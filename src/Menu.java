@@ -5,15 +5,21 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 
 public class Menu {
-
+    public static Font font = new Font("Courier New", Font.BOLD, 15);
+    public static final int frameWidth = 100;    //120  50
+    public static final int frameHeight = 40;    //50  50
     public static ArrayList<String> readTitle() {
         ArrayList<String> title = new ArrayList<>();
         File file = new File("title.txt");
@@ -31,27 +37,28 @@ public class Menu {
         return title;
     }
 
-    public static void drawMenu(Terminal terminal, Screen screen, String[] labels, Boxes boxes, int width, int heigth,  int choice) {
-        int shift = -5;
+    public static void drawMenu( Screen screen, String[] labels, Boxes boxes, int width, int heigth,  int choice) {
+        int shift = -3;
         for (int i = 0 ; i< 5; i++) {
-            try {
-                int col = (terminal.getTerminalSize().getColumns()-width)/2;
-                int row = (terminal.getTerminalSize().getRows())/2+shift;
+                int col = (screen.getTerminalSize().getColumns()-width)/2;
+                int row = (screen.getTerminalSize().getRows())/2+shift;
                 if (i == choice) {
-                    boxes.drawBoldButton(labels[i],terminal, screen,col,row,width,heigth);
-                } else boxes.drawButton(labels[i],terminal, screen,col,row,width,heigth);
+                    boxes.drawBoldButton(labels[i], screen,col,row,width,heigth);
+                } else boxes.drawButton(labels[i], screen,col,row,width,heigth);
                 shift += 4;
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public static void main(String[] args) {
-        DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
-        TerminalSize terminalSize = new TerminalSize(120,120);
-        Screen screen = null;
+
+        SwingTerminalFontConfiguration cfg = SwingTerminalFontConfiguration.newInstance(font);
+        DefaultTerminalFactory terminal = new DefaultTerminalFactory(System.out, System.in, StandardCharsets.UTF_8)
+                .setTerminalEmulatorFontConfiguration(cfg)
+                .setInitialTerminalSize(new TerminalSize(Menu.frameWidth, Menu.frameHeight))
+                .setTerminalEmulatorTitle("Human Benchmark");
+//        TerminalSize terminalSize = new TerminalSize(120,120);
+
         int choice = 0;
         String[] labels = {
                 "Czas reakcji",
@@ -64,20 +71,14 @@ public class Menu {
         Boxes boxes = new Boxes();
         ArrayList<String> title = readTitle();
         Statistics statistics = new Statistics();
-
+        Screen screen = null;
         int width = 20, heigth = 3;
         try {
-            Terminal terminal = defaultTerminalFactory.createTerminal();
-//            SwingTerminalFrame terminal = new SwingTerminalFrame(TerminalEmulatorAutoCloseTrigger.CloseOnExitPrivateMode);
-//            terminal.setSize(120,120);
-//            SwingTerminalFrame terminal = new SwingTerminalFrame("Human Benchmark",terminalSize, TerminalEmulatorDeviceConfiguration.getDefault(),SwingTerminalFontConfiguration.getDefault(),TerminalEmulatorColorConfiguration.getDefault(),TerminalEmulatorAutoCloseTrigger.CloseOnEscape);
-//            String font = Font.SANS_SERIF;
-//            SwingTerminalFontConfiguration swingTerminalFontConfiguration = new SwingTerminalFontConfiguration(false, AWTTerminalFontConfiguration.BoldMode.EVERYTHING, Font.getFont(Font.MONOSPACED));
-            screen = new TerminalScreen(terminal);
+            screen = terminal.createScreen();
             screen.startScreen();
             screen.setCursorPosition(null);
-            boxes.drawTitle(title, terminal, screen);
-            drawMenu(terminal,screen,labels,boxes,width,heigth,choice);
+            boxes.drawTitle(title, screen);
+            drawMenu(screen,labels,boxes,width,heigth,choice);
             screen.refresh();
             while(true) {
                 screen.doResizeIfNecessary();
@@ -92,25 +93,25 @@ public class Menu {
                 } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.Enter) {
                     switch (choice) {
                         case 0 :
-                            measures.measureReactionTime(terminal, screen, statistics);
+                            measures.measureReactionTime(screen, statistics);
                             break;
                         case 1 :
-                            measures.measureNumberMemory(terminal,screen, statistics);
+                            measures.measureNumberMemory(screen, statistics);
                             break;
                         case 2 :
-                            measures.measureVerbalMemory(terminal, screen, statistics);
+                            measures.measureVerbalMemory(screen, statistics);
                             break;
                         case 3:
-                            measures.measureTyping(terminal, screen, statistics);
+                            measures.measureTyping( screen, statistics);
                             screen.setCursorPosition(null);
                             break;
                         case 4:
-                            measures.displayStatistics(terminal, screen, statistics);
+                            measures.displayStatistics( screen, statistics);
                             break;
                     }
                 }
-                boxes.drawTitle(title, terminal, screen);
-                drawMenu(terminal,screen,labels,boxes,width,heigth,choice);
+                boxes.drawTitle(title, screen);
+                drawMenu(screen,labels,boxes,width,heigth,choice);
                 screen.refresh();
             }
 

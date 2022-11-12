@@ -6,7 +6,6 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,14 +22,14 @@ class SortResults implements Comparator<Integer> {
 
 public class Measures {
 
-    public void measureReactionTime(Terminal terminal, Screen screen, Statistics statistics) {
+    public void measureReactionTime( Screen screen, Statistics statistics) {
         screen.clear();
         try {
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
             String information = "Kliknij enter a następnie czekaj aż kolor zmieni się na zielony";
             String shortInformation = "Czekaj aż kolor zmieni się na zielony";
-            textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - information.length()/2, 3, information, SGR.BOLD);
+            textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - information.length()/2, 3, information, SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke1 = screen.readInput();
             while (keyStroke1.getKeyType() != KeyType.Escape) {   //keyStroke1.getKeyType() != KeyType.Tab
@@ -38,7 +37,7 @@ public class Measures {
                     textGraphics.setBackgroundColor(TextColor.ANSI.RED);
                     textGraphics.setForegroundColor(TextColor.ANSI.YELLOW);
                     textGraphics.fill(' ');
-                    textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - shortInformation.length()/2, 3, shortInformation, SGR.BOLD);
+                    textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - shortInformation.length()/2, 3, shortInformation, SGR.BOLD);
 
                     screen.refresh();
                     ReactionTime reactionTime = new ReactionTime();
@@ -57,7 +56,7 @@ public class Measures {
                         reactionTime.setEnd_time(System.nanoTime());
                         textGraphics.setBackgroundColor(TextColor.ANSI.BLUE);
                         textGraphics.setForegroundColor(TextColor.ANSI.YELLOW);
-                        textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - ("twoj czas to:" + reactionTime.getReactionTime() + "ms").length() / 2, terminal.getTerminalSize().getRows() / 2, "twoj czas to:" + reactionTime.getReactionTime() + "ms", SGR.BOLD);
+                        textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - ("twoj czas to:" + reactionTime.getReactionTime() + "ms").length() / 2, screen.getTerminalSize().getRows() / 2, "twoj czas to:" + reactionTime.getReactionTime() + "ms", SGR.BOLD);
                         statistics.addReactionTimeResult(reactionTime.getReactionTime());
                         screen.refresh();
                     } else if (keyStroke1.getKeyType() == KeyType.Escape) {
@@ -72,26 +71,26 @@ public class Measures {
         }screen.clear();
     }
 
-    public void measureNumberMemory(Terminal terminal, Screen screen, Statistics statistics) {
+    public void measureNumberMemory( Screen screen, Statistics statistics) {
         Boxes boxes = new Boxes();
         screen.clear();
         NumberMemory numberMemory = new NumberMemory();
         try {
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
-            textGraphics.putString(terminal.getTerminalSize().getColumns() / 2- ("Kliknij enter aby rozpocząć").length()/2, 1, "Kliknij enter aby rozpocząć", SGR.BOLD);
+            textGraphics.putString(screen.getTerminalSize().getColumns() / 2- ("Kliknij enter aby rozpocząć").length()/2, 1, "Kliknij enter aby rozpocząć", SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke1 = screen.readInput();
             while (keyStroke1.getKeyType() != KeyType.Escape) {  //  keyStroke1.getKeyType() != KeyType.Tab
                 if (keyStroke1.getKeyType() == KeyType.Enter) {
                     screen.clear();
                     long number = numberMemory.drawNewNumber();
-                    int columnStart = terminal.getTerminalSize().getColumns()/2-10;
-                    int columnEnd = terminal.getTerminalSize().getColumns()/2+10;
-                    int row = terminal.getTerminalSize().getRows()/2+10;
+                    int columnStart = screen.getTerminalSize().getColumns()/2-10;
+                    int columnEnd = screen.getTerminalSize().getColumns()/2+10;
+                    int row = screen.getTerminalSize().getRows()/2+10;
                     TerminalPosition progressBarStart = new TerminalPosition(columnStart,row);
                     TerminalPosition progressBarEnd = new TerminalPosition(columnEnd, row);
-                    textGraphics.putString(terminal.getTerminalSize().getColumns() / 2- Long.toString(number).length()/2, terminal.getTerminalSize().getRows() / 2,Long.toString(number) , SGR.BOLD);
+                    textGraphics.putString(screen.getTerminalSize().getColumns() / 2- Long.toString(number).length()/2, screen.getTerminalSize().getRows() / 2,Long.toString(number) , SGR.BOLD);
                     screen.refresh();
                     textGraphics.setForegroundColor(TextColor.ANSI.MAGENTA);
                     textGraphics.drawLine(progressBarStart,progressBarEnd,Symbols.BLOCK_SOLID);
@@ -99,27 +98,27 @@ public class Measures {
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
                     for (int i = columnEnd; i >= columnStart; i--) {
                         textGraphics.putString(i,row,String.valueOf(Symbols.BLOCK_SOLID));
-                        Thread.sleep(1000*numberMemory.getLevel()/20);
+                        Thread.sleep(1000L *numberMemory.getLevel()/20);
                         screen.refresh();
                     }
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
                     screen.clear();
 
-                    boxes.drawBox((" ").repeat(50),terminal, screen, terminal.getTerminalSize().getRows()/4);
+                    boxes.drawBox((" ").repeat(50), screen, screen.getTerminalSize().getRows()/4);
                     String hint = "Wpisz zapamiętany numer";
-                    textGraphics.putString( terminal.getTerminalSize().getColumns()/2-hint.length()/2,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,hint , SGR.BOLD);
+                    textGraphics.putString( screen.getTerminalSize().getColumns()/2-hint.length()/2,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,hint , SGR.BOLD);
                     screen.refresh();
                     Writing writing = new Writing();
                     keyStroke1 = screen.readInput();
-                    textGraphics.putString( terminal.getTerminalSize().getColumns()/2-(" ").repeat(40).length()/2,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,(" ").repeat(40), SGR.BOLD);
+                    textGraphics.putString( screen.getTerminalSize().getColumns()/2-(" ").repeat(40).length()/2,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,(" ").repeat(40), SGR.BOLD);
                      while (keyStroke1.getKeyType() != KeyType.Enter && keyStroke1.getKeyType() != KeyType.Escape){   //for (int i = 0; i < numberMemory.getLevel(); i++)
                         if (keyStroke1.getKeyType() == KeyType.Character) {
                             writing.appendText(keyStroke1.getCharacter());
-                            textGraphics.putString(terminal.getTerminalSize().getColumns()/2-writing.getText().length()/2,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,writing.getText() , SGR.BOLD);
+                            textGraphics.putString(screen.getTerminalSize().getColumns()/2-writing.getText().length()/2,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,writing.getText() , SGR.BOLD);
                         } else if (keyStroke1.getKeyType() == KeyType.Backspace && writing.getText().compareTo("") != 0) {
                             writing.cutLastChar();
-                            textGraphics.putString(terminal.getTerminalSize().getColumns()/2-24,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,(" ").repeat(49) , SGR.BOLD);
-                            textGraphics.putString(terminal.getTerminalSize().getColumns()/2-writing.getText().length()/2,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,writing.getText() , SGR.BOLD);
+                            textGraphics.putString(screen.getTerminalSize().getColumns()/2-24,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,(" ").repeat(49) , SGR.BOLD);
+                            textGraphics.putString(screen.getTerminalSize().getColumns()/2-writing.getText().length()/2,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,writing.getText() , SGR.BOLD);
 
                         }
                         screen.refresh();
@@ -130,8 +129,8 @@ public class Measures {
                          String completedLvMsg = "Poziom " + numberMemory.getLevel() + " ukończony!";
                          String startNextLvMsg = "Aby przejść do następnego poziomu kliknij ENTER";
                          screen.clear();
-                         textGraphics.putString(terminal.getTerminalSize().getColumns()/2-completedLvMsg.length()/2,terminal.getTerminalSize().getRows()/2, completedLvMsg, SGR.BOLD);
-                         textGraphics.putString(terminal.getTerminalSize().getColumns()/2-startNextLvMsg.length()/2,terminal.getTerminalSize().getRows()/2+3, startNextLvMsg, SGR.BOLD);
+                         textGraphics.putString(screen.getTerminalSize().getColumns()/2-completedLvMsg.length()/2,screen.getTerminalSize().getRows()/2, completedLvMsg, SGR.BOLD);
+                         textGraphics.putString(screen.getTerminalSize().getColumns()/2-startNextLvMsg.length()/2,screen.getTerminalSize().getRows()/2+3, startNextLvMsg, SGR.BOLD);
                          screen.refresh();
 //                         statistics.addNumberMemoryResult(numberMemory.getLevel());
                          numberMemory.nextLevel();
@@ -140,8 +139,8 @@ public class Measures {
                      else {
                          String summaryMsg = "Ukończono " + (numberMemory.getLevel()-1) + " poziomów";
                          String returnMsg =  "kliknij dowolny klawisz aby powrócić do menu głównego";
-                         textGraphics.putString(terminal.getTerminalSize().getColumns()/2-summaryMsg.length()/2,terminal.getTerminalSize().getRows()/2, summaryMsg, SGR.BOLD);
-                         textGraphics.putString(terminal.getTerminalSize().getColumns()/2-returnMsg.length()/2,terminal.getTerminalSize().getRows()/2+3, returnMsg, SGR.BOLD);
+                         textGraphics.putString(screen.getTerminalSize().getColumns()/2-summaryMsg.length()/2,screen.getTerminalSize().getRows()/2, summaryMsg, SGR.BOLD);
+                         textGraphics.putString(screen.getTerminalSize().getColumns()/2-returnMsg.length()/2,screen.getTerminalSize().getRows()/2+3, returnMsg, SGR.BOLD);
                          screen.refresh();
                          statistics.addNumberMemoryResult(numberMemory.getLevel()-1);
                          keyStroke1 = screen.readInput();
@@ -155,13 +154,13 @@ public class Measures {
         screen.clear();
     }
 
-    public void measureVerbalMemory(Terminal terminal, Screen screen, Statistics statistics) {
+    public void measureVerbalMemory( Screen screen, Statistics statistics) {
         Boxes boxes = new Boxes();
         VerbalMemory verbalMemory = new VerbalMemory();
         int col, row, shift = -7, choice = 1;
         String[] buttonLabels = {
-                "było",
-                "nowe"
+                " Było",
+                " Nowe"
         };
 
         try {
@@ -170,29 +169,28 @@ public class Measures {
             String startTest = "Aby rozpocząć kliknij ENTER";
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
-            textGraphics.putString((terminal.getTerminalSize().getColumns()-testInformationMsg.length())/2,terminal.getTerminalSize().getRows()/2,testInformationMsg,SGR.BOLD);
-            textGraphics.putString((terminal.getTerminalSize().getColumns()-startTest.length())/2,terminal.getTerminalSize().getRows()/2+3,startTest,SGR.BOLD);
+            textGraphics.putString((screen.getTerminalSize().getColumns()-testInformationMsg.length())/2,screen.getTerminalSize().getRows()/2,testInformationMsg,SGR.BOLD);
+            textGraphics.putString((screen.getTerminalSize().getColumns()-startTest.length())/2,screen.getTerminalSize().getRows()/2+3,startTest,SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke = screen.readInput();
 
             if (keyStroke.getKeyType() == KeyType.Enter) {
                 String word;
-                int result = 0;
                 screen.clear();
 
                 for (int i = 0 ; i< 2; i++) {
-                    col = (terminal.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
-                    row = (terminal.getTerminalSize().getRows())/2;
+                    col = (screen.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
+                    row = (screen.getTerminalSize().getRows())/2;
                     if (i == choice) {
-                        boxes.drawBoldButton(buttonLabels[i],terminal, screen,col,row,buttonLabels[i].length()+3,3);
-                    } else boxes.drawButton(buttonLabels[i],terminal, screen,col,row,buttonLabels[i].length()+3,3);
+                        boxes.drawBoldButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
+                    } else boxes.drawButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
                         shift += 10;
                 }
                 word = verbalMemory.getNewWord();
 
-                String livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + " Punkty | " + verbalMemory.getPoints();
-                textGraphics.putString((terminal.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
-                textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
+                String livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + "  Punkty | " + verbalMemory.getPoints();
+                textGraphics.putString((screen.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, screen.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
+                textGraphics.putString((screen.getTerminalSize().getColumns()-word.length())/2, screen.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
 
                 screen.refresh();
 
@@ -212,10 +210,9 @@ public class Measures {
                             }
                             if (verbalMemory.getNewOrSeen()==0) {
                                 word = verbalMemory.getNewWord();
-                                result = 0;
                             } else {
                                 word = verbalMemory.getSeenWord();
-                                result = 1;
+
                             }
                         }
                         else {
@@ -225,41 +222,39 @@ public class Measures {
                             }
                             if (verbalMemory.getNewOrSeen()==0) {
                                 word = verbalMemory.getNewWord();
-                                result = 0;
                             } else {
                                 word = verbalMemory.getSeenWord();
-                                result = 1;
                             }
                             if (verbalMemory.getLives() == 0){
                                 break;
                             }
                         }
-                        int columnStart = (terminal.getTerminalSize().getColumns() - word.length())/2;
-                        int columnEnd = (terminal.getTerminalSize().getColumns() + word.length())/2;
-                        int rowv = terminal.getTerminalSize().getRows()/2-2;
+
+                        int columnStart = (screen.getTerminalSize().getColumns() - word.length())/2;
+                        int columnEnd = (screen.getTerminalSize().getColumns() + word.length())/2;
+                        int rowv = screen.getTerminalSize().getRows()/2-2;
                         TerminalPosition progressBarStart = new TerminalPosition(columnStart,rowv);
                         TerminalPosition progressBarEnd = new TerminalPosition(columnEnd, rowv);
-
                         textGraphics.drawLine(progressBarStart,progressBarEnd,Symbols.BLOCK_SOLID);
                         screen.refresh();
                         Thread.sleep(200);
                     }
 
-                        livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + " Punkty | " + verbalMemory.getPoints();
+                        livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + "  Punkty | " + verbalMemory.getPoints();
 
-                        textGraphics.putString((terminal.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
-                        textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
-                        textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
+                        textGraphics.putString((screen.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, screen.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
+                        textGraphics.putString((screen.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, screen.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
+                        textGraphics.putString((screen.getTerminalSize().getColumns()-word.length())/2, screen.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
                         screen.refresh();
 
 
                         shift = -7;
                         for (int i = 0 ; i< 2; i++) {
-                            col = (terminal.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
-                            row = (terminal.getTerminalSize().getRows())/2;
+                            col = (screen.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
+                            row = (screen.getTerminalSize().getRows())/2;
                             if (i == choice) {
-                                boxes.drawBoldButton(buttonLabels[i],terminal, screen,col,row,buttonLabels[i].length()+3,3);
-                            } else boxes.drawButton(buttonLabels[i],terminal, screen,col,row,buttonLabels[i].length()+3,3);
+                                boxes.drawBoldButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
+                            } else boxes.drawButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
                             shift += 10;
                         }
                         screen.refresh();
@@ -267,8 +262,8 @@ public class Measures {
                 screen.clear();
                 String resultMsg = "Twój wynik to: " + verbalMemory.getPoints() + "pkt.";
                 String quit = "Kliknij ESC aby wrócić do menu głównego";
-                textGraphics.putString((terminal.getTerminalSize().getColumns()-resultMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,resultMsg,SGR.BOLD);
-                textGraphics.putString((terminal.getTerminalSize().getColumns()-quit.length())/2, terminal.getTerminalSize().getRows()/2-2,quit,SGR.BOLD);
+                textGraphics.putString((screen.getTerminalSize().getColumns()-resultMsg.length())/2, screen.getTerminalSize().getRows()/2-6,resultMsg,SGR.BOLD);
+                textGraphics.putString((screen.getTerminalSize().getColumns()-quit.length())/2, screen.getTerminalSize().getRows()/2-2,quit,SGR.BOLD);
                 statistics.addVerbalMemoryResult(verbalMemory.getPoints());
                 screen.refresh();
                 keyStroke = screen.readInput();
@@ -276,27 +271,24 @@ public class Measures {
                     keyStroke = screen.readInput();
                 }
                 }
-        } catch (IOException e ) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e ) {
             e.printStackTrace();
         }
         screen.clear();
     }
 
-    public void measureTyping(Terminal terminal, Screen screen, Statistics statistics) {
-        Boxes boxes = new Boxes();
+    public void measureTyping( Screen screen, Statistics statistics) {
         Typing typing = new Typing();
-        KeyStroke keyStroke1 = null;
+        KeyStroke keyStroke1;
         screen.clear();
         try {
             int spacing = 3;
             String startTestMsg = "Kliknij ENTER a następnie zacznij pisać aby rozpocząć test";
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
-            textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - startTestMsg.length() / 2, 1, startTestMsg, SGR.BOLD);
+            textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - startTestMsg.length() / 2, 1, startTestMsg, SGR.BOLD);
             for (String line:typing.getText()) {
-                textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - line.length() / 2, spacing, line, SGR.BOLD);
+                textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - line.length() / 2, spacing, line, SGR.BOLD);
                 spacing+=2;
 
             }
@@ -306,7 +298,7 @@ public class Measures {
             if (keyStroke1.getKeyType() == KeyType.Enter) {
                 typing.setStart_time(System.nanoTime());
                 for (String line:typing.getText()) {
-                    int x = (terminal.getTerminalSize().getColumns() / 2 - line.length() / 2);
+                    int x = (screen.getTerminalSize().getColumns() / 2 - line.length() / 2);
                     int y = spacing;
                     screen.setCursorPosition(new TerminalPosition(x,y));
                     screen.refresh();
@@ -343,7 +335,7 @@ public class Measures {
 
                 String resultMsg = "Twój wynik to: " + result + " WPM";
                 textGraphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
-                textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - resultMsg.length() / 2, terminal.getTerminalSize().getRows()/2 + 10, resultMsg, SGR.BOLD);
+                textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - resultMsg.length() / 2, screen.getTerminalSize().getRows()/2 + 10, resultMsg, SGR.BOLD);
                 statistics.addTypingResult((int)result);
                 screen.refresh();
 
@@ -363,17 +355,17 @@ public class Measures {
         screen.clear();
     }
 
-    public void displayActivityStats(Terminal terminal, Screen screen, String label, ArrayList<Integer> results, int x_col, int y_row) {
+    public void displayActivityStats( Screen screen, String label, ArrayList<Integer> results, int x_col, int y_row) {
         TextGraphics textGraphics = screen.newTextGraphics();
         int shift = 1;
         try {
-            textGraphics.putString(((terminal.getTerminalSize().getColumns() - label.length())/ 4) * x_col,
-                    terminal.getTerminalSize().getRows()/8 * y_row, label, SGR.BOLD);
+            textGraphics.putString(((screen.getTerminalSize().getColumns() - label.length())/ 4) * x_col,
+                    screen.getTerminalSize().getRows()/8 * y_row, label, SGR.BOLD);
             Collections.sort(results, new SortResults());
             for (int result: results) {
 
-                textGraphics.putString(terminal.getTerminalSize().getColumns() / 4 * x_col,
-                        terminal.getTerminalSize().getRows()/8 * y_row + shift, String.valueOf(result), SGR.BOLD);
+                textGraphics.putString(screen.getTerminalSize().getColumns() / 4 * x_col,
+                        screen.getTerminalSize().getRows()/8 * y_row + shift, String.valueOf(result), SGR.BOLD);
                 screen.refresh();
                 shift+=2;
 
@@ -383,11 +375,11 @@ public class Measures {
         }
     }
 
-    public void displayStatistics(Terminal terminal, Screen screen, Statistics statistics) {
-        displayActivityStats(terminal, screen,"Czas Reakcji", statistics.getReactionTimeResults(), 1,1);
-        displayActivityStats(terminal, screen,"Pamięć numerów", statistics.getNumberMemoryResults(), 3,1);
-        displayActivityStats(terminal, screen,"Pamięć wyrazów", statistics.getVerbalMemoryResults(), 1,5);
-        displayActivityStats(terminal, screen,"Pisanie", statistics.getTypingResults(), 3,5);
+    public void displayStatistics( Screen screen, Statistics statistics) {
+        displayActivityStats(screen,"Czas Reakcji", statistics.getReactionTimeResults(), 1,1);
+        displayActivityStats(screen,"Pamięć numerów", statistics.getNumberMemoryResults(), 3,1);
+        displayActivityStats(screen,"Pamięć wyrazów", statistics.getVerbalMemoryResults(), 1,5);
+        displayActivityStats(screen,"Pisanie", statistics.getTypingResults(), 3,5);
 
         try {
             screen.refresh();

@@ -1,18 +1,19 @@
 import com.googlecode.lanterna.*;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class Boxes {
-    public void drawBox(String label, Terminal terminal, Screen screen, int shift) throws IOException {
+    public void drawBox(String label,  Screen screen, int shift) throws IOException {  // DefaultTerminalFactory terminal,
 
         TextGraphics textGraphics;
 //        String sizeLabel = label;
         TerminalSize labelBoxSize = new TerminalSize(label.length() + 2, 3);
-        TerminalPosition labelBoxTopLeft = new TerminalPosition(terminal.getTerminalSize().getColumns()/2-label.length()/2, terminal.getTerminalSize().getRows()/2+shift);
+        TerminalPosition labelBoxTopLeft = new TerminalPosition(screen.getTerminalSize().getColumns()/2-label.length()/2, screen.getTerminalSize().getRows()/2+shift);
         TerminalPosition labelBoxTopRightCorner = labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 1);
         textGraphics = screen.newTextGraphics();
         //This isn't really needed as we are overwriting everything below anyway, but just for demonstrative purpose
@@ -36,11 +37,11 @@ public class Boxes {
         textGraphics.putString(labelBoxTopLeft.withRelative(1, 1), label);
     }
 
-    public void drawBoldBox(String label,Terminal terminal, Screen screen, int shift) throws IOException {
+    public void drawBoldBox(String label, Screen screen, int shift) throws IOException {  // Terminal terminal,
 
         TextGraphics textGraphics;
         TerminalSize labelBoxSize = new TerminalSize(label.length() + 2, 3);
-        TerminalPosition labelBoxTopLeft = new TerminalPosition(terminal.getTerminalSize().getColumns()/2- label.length()/2, terminal.getTerminalSize().getRows()/2+shift);
+        TerminalPosition labelBoxTopLeft = new TerminalPosition(screen.getTerminalSize().getColumns()/2- label.length()/2, screen.getTerminalSize().getRows()/2+shift);
         TerminalPosition labelBoxTopRightCorner = labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 1);
         textGraphics = screen.newTextGraphics();
         //This isn't really needed as we are overwriting everything below anyway, but just for demonstrative purpose
@@ -64,7 +65,7 @@ public class Boxes {
         textGraphics.putString(labelBoxTopLeft.withRelative(1, 1), label);
     }
 
-    public void drawButton(String label,Terminal terminal, Screen screen, int col, int row, int width, int height) {
+    public void drawButton(String label, Screen screen, int col, int row, int width, int height) {
         TextGraphics textGraphics = screen.newTextGraphics();
         TerminalSize labelBoxSize = new TerminalSize(width,height);
         TerminalPosition leftTop = null;
@@ -73,7 +74,7 @@ public class Boxes {
         textGraphics.putString(leftTop.withRelative((width - label.length())/2, 1), label);
     }
 
-    public void drawBoldButton(String label,Terminal terminal, Screen screen, int col, int row, int width, int height) {
+    public void drawBoldButton(String label, Screen screen, int col, int row, int width, int height) {
         TextGraphics textGraphics = screen.newTextGraphics();
         TerminalSize labelBoxSize = new TerminalSize(width,height);
         TerminalPosition leftTop = null;
@@ -82,17 +83,12 @@ public class Boxes {
         textGraphics.putString(leftTop.withRelative((width - label.length())/2, 1), label);
     }
 
-    public void drawTitle(ArrayList<String> title,Terminal terminal, Screen screen) {
+    public void drawTitle(ArrayList<String> title, Screen screen) { // Terminal terminal
         TextGraphics textGraphics = screen.newTextGraphics();
         int spacing = 2;
         for (String line:title) {
-            try {
-                textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - line.length() / 2, spacing, line, SGR.BOLD);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - line.length() / 2, spacing, line, SGR.BOLD);
             spacing++;
-
         }
     }
 }
