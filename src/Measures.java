@@ -8,10 +8,25 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+class SortResults implements Comparator<Integer> {
+
+    @Override
+    public int compare(Integer o1, Integer o2) {
+        return o1 -o2;
+    }
+}
+
 
 public class Measures {
 
-    public void measureReactionTime(Terminal terminal, Screen screen) {
+
+
+
+    public void measureReactionTime(Terminal terminal, Screen screen, Statistics statistics) {
         screen.clear();
         try {
             screen.setCursorPosition(null);
@@ -46,6 +61,7 @@ public class Measures {
                         textGraphics.setBackgroundColor(TextColor.ANSI.BLUE);
                         textGraphics.setForegroundColor(TextColor.ANSI.YELLOW);
                         textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - ("twoj czas to:" + reactionTime.getReactionTime() + "ms").length() / 2, terminal.getTerminalSize().getRows() / 2, "twoj czas to:" + reactionTime.getReactionTime() + "ms", SGR.BOLD);
+                        statistics.addReactionTimeResult(reactionTime.getReactionTime());
                         screen.refresh();
                     } else if (keyStroke1.getKeyType() == KeyType.Escape) {
                         break;
@@ -59,7 +75,7 @@ public class Measures {
         }screen.clear();
     }
 
-    public void measureNumberMemory(Terminal terminal, Screen screen) {
+    public void measureNumberMemory(Terminal terminal, Screen screen, Statistics statistics) {
         Boxes boxes = new Boxes();
         screen.clear();
         NumberMemory numberMemory = new NumberMemory();
@@ -91,10 +107,14 @@ public class Measures {
                     }
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
                     screen.clear();
+
                     boxes.drawBox((" ").repeat(50),terminal, screen, terminal.getTerminalSize().getRows()/4);
+                    String hint = "Wpisz zapamiętany numer";
+                    textGraphics.putString( terminal.getTerminalSize().getColumns()/2-hint.length()/2,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,hint , SGR.BOLD);
                     screen.refresh();
                     Writing writing = new Writing();
                     keyStroke1 = screen.readInput();
+                    textGraphics.putString( terminal.getTerminalSize().getColumns()/2-(" ").repeat(40).length()/2,terminal.getTerminalSize().getRows()/2+terminal.getTerminalSize().getRows()/4+1,(" ").repeat(40), SGR.BOLD);
                      while (keyStroke1.getKeyType() != KeyType.Enter && keyStroke1.getKeyType() != KeyType.Escape){   //for (int i = 0; i < numberMemory.getLevel(); i++)
                         if (keyStroke1.getKeyType() == KeyType.Character) {
                             writing.appendText(keyStroke1.getCharacter());
@@ -116,6 +136,7 @@ public class Measures {
                          textGraphics.putString(terminal.getTerminalSize().getColumns()/2-completedLvMsg.length()/2,terminal.getTerminalSize().getRows()/2, completedLvMsg, SGR.BOLD);
                          textGraphics.putString(terminal.getTerminalSize().getColumns()/2-startNextLvMsg.length()/2,terminal.getTerminalSize().getRows()/2+3, startNextLvMsg, SGR.BOLD);
                          screen.refresh();
+//                         statistics.addNumberMemoryResult(numberMemory.getLevel());
                          numberMemory.nextLevel();
                          keyStroke1 = screen.readInput();
                      }
@@ -125,6 +146,7 @@ public class Measures {
                          textGraphics.putString(terminal.getTerminalSize().getColumns()/2-summaryMsg.length()/2,terminal.getTerminalSize().getRows()/2, summaryMsg, SGR.BOLD);
                          textGraphics.putString(terminal.getTerminalSize().getColumns()/2-returnMsg.length()/2,terminal.getTerminalSize().getRows()/2+3, returnMsg, SGR.BOLD);
                          screen.refresh();
+                         statistics.addNumberMemoryResult(numberMemory.getLevel()-1);
                          keyStroke1 = screen.readInput();
                          break;
                      }
@@ -136,7 +158,7 @@ public class Measures {
         screen.clear();
     }
 
-    public void measureVerbalMemory(Terminal terminal, Screen screen) {
+    public void measureVerbalMemory(Terminal terminal, Screen screen, Statistics statistics) {
         Boxes boxes = new Boxes();
         VerbalMemory verbalMemory = new VerbalMemory();
         int col, row, shift = -7, choice = 1;
@@ -203,7 +225,8 @@ public class Measures {
                             textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
                             textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
                             screen.refresh();
-                        } else {
+                        }
+                        else {
                             verbalMemory.loseLive();
                             if (verbalMemory.isWordInSeen(word) == 1) {
                                 verbalMemory.addSeen(word);
@@ -215,9 +238,10 @@ public class Measures {
                                 word = verbalMemory.getSeenWord();
                                 result = 1;
                             }
-                            livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + " Punkty | " + verbalMemory.getPoints();
+                            livesAndPointsMsg = "Szanse | " + verbalMemory.getLives() + "   Punkty | " + verbalMemory.getPoints();
                             textGraphics.putString((terminal.getTerminalSize().getColumns()-livesAndPointsMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,livesAndPointsMsg,SGR.BOLD);
-                            textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
+                            textGraphics.putString((terminal.getTerminalSize().getColumns()-(" ").repeat(25).length())/2, terminal.getTerminalSize().getRows()/2-2,(" ").repeat(25),SGR.BOLD);
+                            textGraphics.putString((terminal.getTerminalSize().getColumns()-word.length())/2, terminal.getTerminalSize().getRows()/2-2,word,SGR.BOLD);
                             screen.refresh();
                             if (verbalMemory.getLives() == 0){
                                 break;
@@ -235,6 +259,17 @@ public class Measures {
                         }
                         screen.refresh();
                     }
+                screen.clear();
+                String resultMsg = "Twój wynik to: " + verbalMemory.getPoints() + "pkt.";
+                String quit = "Kliknij ESC aby wrócić do menu głównego";
+                textGraphics.putString((terminal.getTerminalSize().getColumns()-resultMsg.length())/2, terminal.getTerminalSize().getRows()/2-6,resultMsg,SGR.BOLD);
+                textGraphics.putString((terminal.getTerminalSize().getColumns()-quit.length())/2, terminal.getTerminalSize().getRows()/2-2,quit,SGR.BOLD);
+                statistics.addVerbalMemoryResult(verbalMemory.getPoints());
+                screen.refresh();
+                keyStroke = screen.readInput();
+                while (keyStroke.getKeyType() != KeyType.Escape){
+                    keyStroke = screen.readInput();
+                }
                 }
         } catch (IOException e) {
             e.printStackTrace();
@@ -242,7 +277,7 @@ public class Measures {
         screen.clear();
     }
 
-    public void measureTyping(Terminal terminal, Screen screen) {
+    public void measureTyping(Terminal terminal, Screen screen, Statistics statistics) {
         Boxes boxes = new Boxes();
         Typing typing = new Typing();
         KeyStroke keyStroke1 = null;
@@ -302,6 +337,7 @@ public class Measures {
                 String resultMsg = "Twój wynik to: " + result + " WPM";
                 textGraphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
                 textGraphics.putString(terminal.getTerminalSize().getColumns() / 2 - resultMsg.length() / 2, terminal.getTerminalSize().getRows()/2 + 10, resultMsg, SGR.BOLD);
+                statistics.addTypingResult((int)result);
                 screen.refresh();
 
                 keyStroke1 = screen.readInput();
@@ -317,6 +353,41 @@ public class Measures {
 //        catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
+        screen.clear();
+    }
+
+    public void displayActivityStats(Terminal terminal, Screen screen, String label, ArrayList<Integer> results, int x_col, int y_row) {
+        TextGraphics textGraphics = screen.newTextGraphics();
+        int shift = 1;
+        try {
+            textGraphics.putString(((terminal.getTerminalSize().getColumns() - label.length())/ 4) * x_col,
+                    terminal.getTerminalSize().getRows()/8 * y_row, label, SGR.BOLD);
+            Collections.sort(results, new SortResults());
+            for (int result: results) {
+
+                textGraphics.putString(terminal.getTerminalSize().getColumns() / 4 * x_col,
+                        terminal.getTerminalSize().getRows()/8 * y_row + shift, String.valueOf(result), SGR.BOLD);
+                screen.refresh();
+                shift+=2;
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void displayStatistics(Terminal terminal, Screen screen, Statistics statistics) {
+        displayActivityStats(terminal, screen,"Czas Reakcji", statistics.getReactionTimeResults(), 1,1);
+        displayActivityStats(terminal, screen,"Pamięć numerów", statistics.getNumberMemoryResults(), 3,1);
+        displayActivityStats(terminal, screen,"Pamięć wyrazów", statistics.getVerbalMemoryResults(), 1,5);
+        displayActivityStats(terminal, screen,"Pisanie", statistics.getTypingResults(), 3,5);
+
+        try {
+            screen.refresh();
+            screen.readInput();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         screen.clear();
     }
 }
