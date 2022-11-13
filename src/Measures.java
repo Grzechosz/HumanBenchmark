@@ -19,6 +19,14 @@ class SortResults implements Comparator<Integer> {
     }
 }
 
+class ReverseSortResults implements Comparator<Integer> {
+
+    @Override
+    public int compare(Integer o1, Integer o2) {
+        return o2 -o1;
+    }
+}
+
 
 public class Measures {
 
@@ -29,15 +37,15 @@ public class Measures {
             final TextGraphics textGraphics = screen.newTextGraphics();
             String information = "Kliknij enter a następnie czekaj aż kolor zmieni się na zielony";
             String shortInformation = "Czekaj aż kolor zmieni się na zielony";
-            textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - information.length()/2, 3, information, SGR.BOLD);
+            textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - information.length()/2, screen.getTerminalSize().getRows()/2, information, SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke1 = screen.readInput();
-            while (keyStroke1.getKeyType() != KeyType.Escape) {   //keyStroke1.getKeyType() != KeyType.Tab
+            while (keyStroke1.getKeyType() != KeyType.Escape) {
                 if (keyStroke1.getKeyType() == KeyType.Enter) {
                     textGraphics.setBackgroundColor(TextColor.ANSI.RED);
                     textGraphics.setForegroundColor(TextColor.ANSI.YELLOW);
                     textGraphics.fill(' ');
-                    textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - shortInformation.length()/2, 3, shortInformation, SGR.BOLD);
+                    textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - shortInformation.length()/2, screen.getTerminalSize().getRows()/2, shortInformation, SGR.BOLD);
 
                     screen.refresh();
                     ReactionTime reactionTime = new ReactionTime();
@@ -45,6 +53,9 @@ public class Measures {
                     reactionTime.setStart_time(System.nanoTime());
                     textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
                     textGraphics.fill(' ');
+                    while (screen.pollInput() != null) {
+
+                    }
                     screen.refresh();
                     keyStroke1 = screen.readInput();
 
@@ -78,11 +89,11 @@ public class Measures {
         try {
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
-            textGraphics.putString(screen.getTerminalSize().getColumns() / 2- ("Kliknij enter aby rozpocząć").length()/2, 1, "Kliknij enter aby rozpocząć", SGR.BOLD);
+            textGraphics.putString(screen.getTerminalSize().getColumns() / 2- ("Kliknij enter aby rozpocząć").length()/2, screen.getTerminalSize().getRows()/2, "Kliknij enter aby rozpocząć", SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke1 = screen.readInput();
-            while (keyStroke1.getKeyType() != KeyType.Escape) {  //  keyStroke1.getKeyType() != KeyType.Tab
-                if (keyStroke1.getKeyType() == KeyType.Enter) {
+            while (keyStroke1.getKeyType() == KeyType.Enter && keyStroke1.getKeyType() != KeyType.Escape) {  //  keyStroke1.getKeyType() != KeyType.Tab
+//                if (keyStroke1.getKeyType() == KeyType.Enter) {
                     screen.clear();
                     long number = numberMemory.drawNewNumber();
                     int columnStart = screen.getTerminalSize().getColumns()/2-10;
@@ -98,7 +109,8 @@ public class Measures {
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
                     for (int i = columnEnd; i >= columnStart; i--) {
                         textGraphics.putString(i,row,String.valueOf(Symbols.BLOCK_SOLID));
-                        Thread.sleep(1000L *numberMemory.getLevel()/20);
+                        long time = 1000L;
+                        Thread.sleep(time *numberMemory.getLevel()/20);
                         screen.refresh();
                     }
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
@@ -109,6 +121,9 @@ public class Measures {
                     textGraphics.putString( screen.getTerminalSize().getColumns()/2-hint.length()/2,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,hint , SGR.BOLD);
                     screen.refresh();
                     Writing writing = new Writing();
+                    while (screen.pollInput() != null) {
+
+                    }
                     keyStroke1 = screen.readInput();
                     textGraphics.putString( screen.getTerminalSize().getColumns()/2-(" ").repeat(40).length()/2,screen.getTerminalSize().getRows()/2+screen.getTerminalSize().getRows()/4+1,(" ").repeat(40), SGR.BOLD);
                      while (keyStroke1.getKeyType() != KeyType.Enter && keyStroke1.getKeyType() != KeyType.Escape){   //for (int i = 0; i < numberMemory.getLevel(); i++)
@@ -146,7 +161,8 @@ public class Measures {
                          keyStroke1 = screen.readInput();
                          break;
                      }
-                }
+//                }
+//                keyStroke1 = screen.readInput();
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -165,11 +181,13 @@ public class Measures {
 
         try {
             screen.clear();
-            String testInformationMsg = "Na ekranie będą wyświetlane wyrazy. Jeżeli słowo już się pojawiło kliknij 'było' jeżeli to nowe słowo, kliknij 'nowe'";
+            String testInformationMsg1 = "Na ekranie będą wyświetlane wyrazy.";
+            String testInformationMsg2 =  "Jeżeli słowo już się pojawiło kliknij 'było' jeżeli to nowe słowo, kliknij 'nowe'";
             String startTest = "Aby rozpocząć kliknij ENTER";
             screen.setCursorPosition(null);
             final TextGraphics textGraphics = screen.newTextGraphics();
-            textGraphics.putString((screen.getTerminalSize().getColumns()-testInformationMsg.length())/2,screen.getTerminalSize().getRows()/2,testInformationMsg,SGR.BOLD);
+            textGraphics.putString((screen.getTerminalSize().getColumns()-testInformationMsg1.length())/2,screen.getTerminalSize().getRows()/2-3,testInformationMsg1,SGR.BOLD);
+            textGraphics.putString((screen.getTerminalSize().getColumns()-testInformationMsg2.length())/2,screen.getTerminalSize().getRows()/2,testInformationMsg2,SGR.BOLD);
             textGraphics.putString((screen.getTerminalSize().getColumns()-startTest.length())/2,screen.getTerminalSize().getRows()/2+3,startTest,SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke = screen.readInput();
@@ -355,19 +373,25 @@ public class Measures {
         screen.clear();
     }
 
-    public void displayActivityStats( Screen screen, String label, ArrayList<Integer> results, int x_col, int y_row) {
+    public void displayActivityStats( Screen screen, String label, ArrayList<Integer> results, int x_col, int y_row, boolean reverse) {
         TextGraphics textGraphics = screen.newTextGraphics();
         int shift = 1;
+        int position = 1;
         try {
             textGraphics.putString(((screen.getTerminalSize().getColumns() - label.length())/ 4) * x_col,
                     screen.getTerminalSize().getRows()/8 * y_row, label, SGR.BOLD);
-            Collections.sort(results, new SortResults());
+            if (reverse) {
+                Collections.sort(results, new ReverseSortResults());
+            } else {
+                Collections.sort(results, new SortResults());
+            }
             for (int result: results) {
 
-                textGraphics.putString(screen.getTerminalSize().getColumns() / 4 * x_col,
-                        screen.getTerminalSize().getRows()/8 * y_row + shift, String.valueOf(result), SGR.BOLD);
+                textGraphics.putString((screen.getTerminalSize().getColumns()/ 4 )* x_col,
+                        screen.getTerminalSize().getRows()/8 * y_row + shift, position + ". " + result , SGR.BOLD);
                 screen.refresh();
                 shift+=2;
+                position++;
 
             }
         } catch (IOException e) {
@@ -376,10 +400,10 @@ public class Measures {
     }
 
     public void displayStatistics( Screen screen, Statistics statistics) {
-        displayActivityStats(screen,"Czas Reakcji", statistics.getReactionTimeResults(), 1,1);
-        displayActivityStats(screen,"Pamięć numerów", statistics.getNumberMemoryResults(), 3,1);
-        displayActivityStats(screen,"Pamięć wyrazów", statistics.getVerbalMemoryResults(), 1,5);
-        displayActivityStats(screen,"Pisanie", statistics.getTypingResults(), 3,5);
+        displayActivityStats(screen,"Czas Reakcji [ms]", statistics.getReactionTimeResults(), 1,1, false);
+        displayActivityStats(screen,"Pamięć numerów [ilość cyfr]", statistics.getNumberMemoryResults(), 3,1, true);
+        displayActivityStats(screen,"Pamięć wyrazów [liczba rund]", statistics.getVerbalMemoryResults(), 1,5, true);
+        displayActivityStats(screen,"Pisanie [WPM]", statistics.getTypingResults(), 3,5, true);
 
         try {
             screen.refresh();
