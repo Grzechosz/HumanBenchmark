@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Statistics {
+public class Statistics implements Serializable {
     private final ArrayList<Integer> typingResults;
     private final ArrayList<Integer> reactionTimeResults;
     private final ArrayList<Integer> numberMemoryResults;

@@ -6,9 +6,7 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 
 import java.awt.Font;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -63,7 +61,16 @@ public class Menu {
         Measures measures = new Measures();
         Boxes boxes = new Boxes();
         ArrayList<String> title = readTitle();
-        Statistics statistics = new Statistics();
+        Statistics statistics = null;
+        try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("objects.bin"))) {
+            statistics = (Statistics) inputStream.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+            statistics = new Statistics();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+//        Statistics
         Screen screen = null;
         int width = 20, heigth = 3;
         try {
@@ -112,6 +119,11 @@ public class Menu {
 
         } catch (IOException ioException) {
             ioException.printStackTrace();
+        }
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("objects.bin"))) {
+            outputStream.writeObject(statistics);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if(screen != null) {
                 try {
