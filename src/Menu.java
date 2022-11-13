@@ -70,19 +70,24 @@ public class Menu {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-//        Statistics
         Screen screen = null;
         int width = 20, heigth = 3;
         try {
             screen = terminal.createScreen();
             screen.startScreen();
             screen.setCursorPosition(null);
-            boxes.drawTitle(title, screen);
+            int spacing = -5;
+            while (spacing <= 1) {
+                screen.clear();
+                boxes.drawTitle(title, screen, spacing);
+                screen.refresh();
+                Thread.sleep(600);
+                spacing++;
+            }
             drawMenu(screen,labels,boxes,width,heigth,choice);
             screen.refresh();
             KeyStroke keyStroke = screen.readInput();
             while(true) {
-                screen.doResizeIfNecessary();
                 screen.clear();
 
                 if (keyStroke != null && (keyStroke.getKeyType() == KeyType.Escape || keyStroke.getKeyType() == KeyType.EOF)) {
@@ -100,18 +105,19 @@ public class Menu {
                             measures.measureNumberMemory(screen, statistics);
                             break;
                         case 2 :
-                            measures.measureVerbalMemory(screen, statistics);
+                            measures.measureVerbalMemory(screen, statistics, boxes);
                             break;
                         case 3:
                             measures.measureTyping( screen, statistics);
                             screen.setCursorPosition(null);
                             break;
                         case 4:
-                            measures.displayStatistics( screen, statistics);
+                            TextColor color = measures.displayStatistics( screen, statistics, boxes);
+                            boxes.setColor(color);
                             break;
                     }
                 }
-                boxes.drawTitle(title, screen);
+                boxes.drawTitle(title, screen, 2);
                 drawMenu(screen,labels,boxes,width,heigth,choice);
                 screen.refresh();
                 keyStroke = screen.readInput();
@@ -119,6 +125,8 @@ public class Menu {
 
         } catch (IOException ioException) {
             ioException.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("objects.bin"))) {
             outputStream.writeObject(statistics);

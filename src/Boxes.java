@@ -5,7 +5,17 @@ import com.googlecode.lanterna.screen.Screen;
 import java.util.ArrayList;
 
 public class Boxes {
-    public void drawBox(String label,  Screen screen, int shift)  {  // DefaultTerminalFactory terminal,
+    private TextColor color;
+
+    public Boxes() {
+        this.color = TextColor.ANSI.MAGENTA;
+    }
+
+    public void setColor(TextColor color) {
+        this.color = color;
+    }
+
+    public void drawBox(String label, Screen screen, int shift)  {  // DefaultTerminalFactory terminal,
 
         TextGraphics textGraphics;
         TerminalSize labelBoxSize = new TerminalSize(label.length() + 2, 3);
@@ -44,13 +54,12 @@ public class Boxes {
         TerminalSize labelBoxSize = new TerminalSize(width,height);
         TerminalPosition leftTop;
         leftTop = new TerminalPosition(col,row);
-        textGraphics.drawRectangle(leftTop,labelBoxSize,TextCharacter.DEFAULT_CHARACTER.withBackgroundColor(TextColor.ANSI.MAGENTA_BRIGHT));
+        textGraphics.drawRectangle(leftTop,labelBoxSize,TextCharacter.DEFAULT_CHARACTER.withBackgroundColor(color));
         textGraphics.putString(leftTop.withRelative((width - label.length())/2, 1), label);
     }
 
-    public void drawTitle(ArrayList<String> title, Screen screen) { // Terminal terminal
+    public void drawTitle(ArrayList<String> title, Screen screen, int spacing) {
         TextGraphics textGraphics = screen.newTextGraphics();
-        int spacing = 1;
         for (String line:title) {
             textGraphics.putString(screen.getTerminalSize().getColumns() / 2 - line.length() / 2, spacing, line, SGR.BOLD);
             spacing++;

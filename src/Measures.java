@@ -29,8 +29,25 @@ class ReverseSortResults implements Comparator<Integer> {
 
 
 public class Measures {
+    private long numberMemoryTime;
 
-    public void measureReactionTime( Screen screen, Statistics statistics) {
+    public Measures() {
+        this.numberMemoryTime = 1000L;
+    }
+
+    public long getNumberMemoryTime() {
+        return numberMemoryTime;
+    }
+
+    public void setNumberMemoryTime(long numberMemoryTime) {
+        this.numberMemoryTime = numberMemoryTime;
+    }
+
+    public void lowerNumberMemoryTime(long number) {
+        this.numberMemoryTime -= number;
+    }
+
+    public void measureReactionTime(Screen screen, Statistics statistics) {
         screen.clear();
         try {
             screen.setCursorPosition(null);
@@ -92,8 +109,7 @@ public class Measures {
             textGraphics.putString(screen.getTerminalSize().getColumns() / 2- ("Kliknij enter aby rozpocząć").length()/2, screen.getTerminalSize().getRows()/2, "Kliknij enter aby rozpocząć", SGR.BOLD);
             screen.refresh();
             KeyStroke keyStroke1 = screen.readInput();
-            while (keyStroke1.getKeyType() == KeyType.Enter && keyStroke1.getKeyType() != KeyType.Escape) {  //  keyStroke1.getKeyType() != KeyType.Tab
-//                if (keyStroke1.getKeyType() == KeyType.Enter) {
+            while (keyStroke1.getKeyType() == KeyType.Enter && keyStroke1.getKeyType() != KeyType.Escape) {
                     screen.clear();
                     long number = numberMemory.drawNewNumber();
                     int columnStart = screen.getTerminalSize().getColumns()/2-10;
@@ -109,8 +125,7 @@ public class Measures {
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
                     for (int i = columnEnd; i >= columnStart; i--) {
                         textGraphics.putString(i,row,String.valueOf(Symbols.BLOCK_SOLID));
-                        long time = 1000L;
-                        Thread.sleep(time *numberMemory.getLevel()/20);
+                        Thread.sleep(getNumberMemoryTime()*numberMemory.getLevel()/20);
                         screen.refresh();
                     }
                     textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
@@ -147,7 +162,6 @@ public class Measures {
                          textGraphics.putString(screen.getTerminalSize().getColumns()/2-completedLvMsg.length()/2,screen.getTerminalSize().getRows()/2, completedLvMsg, SGR.BOLD);
                          textGraphics.putString(screen.getTerminalSize().getColumns()/2-startNextLvMsg.length()/2,screen.getTerminalSize().getRows()/2+3, startNextLvMsg, SGR.BOLD);
                          screen.refresh();
-//                         statistics.addNumberMemoryResult(numberMemory.getLevel());
                          numberMemory.nextLevel();
                          keyStroke1 = screen.readInput();
                      }
@@ -161,8 +175,6 @@ public class Measures {
                          keyStroke1 = screen.readInput();
                          break;
                      }
-//                }
-//                keyStroke1 = screen.readInput();
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -170,8 +182,7 @@ public class Measures {
         screen.clear();
     }
 
-    public void measureVerbalMemory( Screen screen, Statistics statistics) {
-        Boxes boxes = new Boxes();
+    public void measureVerbalMemory( Screen screen, Statistics statistics, Boxes boxes) {
         VerbalMemory verbalMemory = new VerbalMemory();
         int col, row, shift = -7, choice = 1;
         String[] buttonLabels = {
@@ -322,7 +333,7 @@ public class Measures {
                     screen.refresh();
                     int index = 0;
                     boolean endWriting = false;
-                    while (index < line.length()) {    //    && !endWriting
+                    while (index < line.length()) {
                         keyStroke1 = screen.readInput();
                         if (keyStroke1.getKeyType() != KeyType.Escape && keyStroke1.getKeyType() == KeyType.Character && keyStroke1.getCharacter() == line.charAt(index)) {
                             textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
@@ -363,13 +374,9 @@ public class Measures {
                 }
             }
 
-//            Thread.sleep(2000);
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
         screen.clear();
     }
 
@@ -390,7 +397,7 @@ public class Measures {
                 textGraphics.putString((screen.getTerminalSize().getColumns()/ 4 )* x_col,
                         screen.getTerminalSize().getRows()/8 * y_row + shift, position + ". " + result , SGR.BOLD);
                 screen.refresh();
-                shift+=2;
+                shift++;
                 position++;
 
             }
@@ -399,18 +406,92 @@ public class Measures {
         }
     }
 
-    public void displayStatistics( Screen screen, Statistics statistics) {
+    public TextColor displayStatistics( Screen screen, Statistics statistics, Boxes boxes) {
+
+        int choice = 0, col, row, shift= -7, index = 0;
+        String[] colors = {
+            "MAGENTA",
+                "BLUE",
+            "RED",
+            "YELLOW",
+            "GREEN",
+            "CYAN"
+        };
+
+        String buttonLabels [] = {
+                " Kolor",
+                " Trudność"
+        };
+
         displayActivityStats(screen,"Czas Reakcji [ms]", statistics.getReactionTimeResults(), 1,1, false);
         displayActivityStats(screen,"Pamięć numerów [ilość cyfr]", statistics.getNumberMemoryResults(), 3,1, true);
-        displayActivityStats(screen,"Pamięć wyrazów [liczba rund]", statistics.getVerbalMemoryResults(), 1,5, true);
-        displayActivityStats(screen,"Pisanie [WPM]", statistics.getTypingResults(), 3,5, true);
+        displayActivityStats(screen,"Pamięć wyrazów [liczba rund]", statistics.getVerbalMemoryResults(), 1,4, true);
+        displayActivityStats(screen,"Pisanie [WPM]", statistics.getTypingResults(), 3,4, true);
 
+        String settingsHint = "Aby zmienić ustawienie kliknij ENTER gdy przycisk jest podświetlony";
+        TextGraphics textGraphics = screen.newTextGraphics();
+        textGraphics.putString((screen.getTerminalSize().getColumns() - settingsHint.length())/  2,
+                screen.getTerminalSize().getRows()/8 * 6 + 1, settingsHint, SGR.BOLD);
+
+        String level = "Ustawiony czas na zapamiętanie jednej cyfry to " + numberMemoryTime + " ms" ;
+        textGraphics.putString((screen.getTerminalSize().getColumns() - level.length())/  2,
+                screen.getTerminalSize().getRows()-3, level, SGR.BOLD);
+
+        for (int i = 0 ; i< 2; i++) {
+            col = (screen.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
+            row = (screen.getTerminalSize().getRows())/8 * 7;
+            if (i == choice) {
+                boxes.drawBoldButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
+            } else boxes.drawButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
+            shift += 10;
+        }
         try {
             screen.refresh();
-            screen.readInput();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        KeyStroke keyStroke = null;
+
+        while (true) {
+            try {
+                keyStroke = screen.readInput();
+                if (keyStroke != null && (keyStroke.getKeyType() == KeyType.Escape || keyStroke.getKeyType() == KeyType.EOF)) {
+                    break;
+                } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.ArrowRight && choice < 1) {
+                    choice++;
+                } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.ArrowLeft && choice > 0) {
+                    choice--;
+                } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.Enter && choice == 0) {
+                    index++;
+                    if (index == 5) {
+                        index = 0;
+                    }
+                    boxes.setColor(TextColor.ANSI.valueOf(colors[index]));
+
+                } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.Enter && choice == 1) {
+                    lowerNumberMemoryTime(100L);
+                    if (getNumberMemoryTime() == 100L) {
+                        setNumberMemoryTime(1000L);
+                    }
+                }
+                shift = -7;
+                for (int i = 0 ; i< 2; i++) {
+                    col = (screen.getTerminalSize().getColumns()-buttonLabels.length)/2+shift;
+                    row = (screen.getTerminalSize().getRows())/8 * 7;
+                    if (i == choice) {
+                        boxes.drawBoldButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
+                    } else boxes.drawButton(buttonLabels[i], screen,col,row,buttonLabels[i].length()+3,3);
+                    shift += 10;
+                }
+                level = "Ustawiony czas na zapamiętanie jednej cyfry to " + numberMemoryTime + " ms" ;
+                textGraphics.putString((screen.getTerminalSize().getColumns() - level.length())/  2,
+                        screen.getTerminalSize().getRows()-3, level, SGR.BOLD);
+                screen.refresh();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         screen.clear();
+        return TextColor.ANSI.valueOf(colors[index]);
     }
 }
